@@ -3,6 +3,7 @@ import pandas as pd
 import os
 from sqlalchemy import create_engine, text
 import textwrap
+from datetime import date
 
 # ===================
 # CONFIGURATION
@@ -15,6 +16,7 @@ N_COLS = 2
 N_ROWS = 2
 DEBUG = False
 OUTPUT_FILENAME = "Competency_Report.pdf"
+
 
 TERM = 4
 CALENDARYEAR = 2024
@@ -281,13 +283,22 @@ def save_and_open_pdf(fig, filename):
     plt.close(fig)  # Clean up
     print(f"✅ PDF saved as {filename}")
 
+def sanitize_filename(s):
+    return s.replace(" ", "_").replace("/", "_")  # remove problematic characters
+
+provider_name = load_provider_name(get_db_engine(), PROVIDER_ID)
+safe_provider = sanitize_filename(provider_name)
+today = date.today().isoformat().replace("-", ".")
+
+OUTPUT_FILENAME = f"{safe_provider}_Term{TERM}_{CALENDARYEAR}_CompetencyReport_{today}.pdf"
+
 # ===================
 # MAIN
 # ===================
 
 def main():
     con = get_db_engine()
-
+    
     competencies_df = load_competencies(con, CALENDARYEAR, TERM)
     competencies_df = competencies_df[competencies_df['WaterBased'] == 1]
 
