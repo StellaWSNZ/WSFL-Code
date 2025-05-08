@@ -16,7 +16,7 @@ DB = True
 
 TERM = 4
 CALENDARYEAR = 2024
-OUTPUT_FILENAME = "National Result (LY vs YTD).pdf"
+OUTPUT_FILENAME = "National Results (LY vs YTD).pdf"
 
 # ===================
 # DATABASE FUNCTIONS
@@ -185,24 +185,13 @@ def generate_national_report(term, calendaryear, from_db=True):
     fig = make_figure(df, DEBUG, title, PAGE_SIZE, TITLE_SPACE, SUBTITLE_SPACE, row_heights, BUFFER)
     return fig
 
-def sanitize_filename(s):
-    return s.replace(" ", "_").replace("/", "_")  # remove problematic characters
-
 # ===================
 # MAIN EXECUTION
 # ===================
 if __name__ == "__main__":
     con = get_db_engine()
     df = load_national_results(con, CALENDARYEAR, TERM, DB)
-    from datetime import date
-
-
-    provider_name = load_provider_name(get_db_engine(), PROVIDER_ID)
-    safe_provider = sanitize_filename(provider_name)
-    today = date.today().isoformat().replace("-", ".")
-
-    OUTPUT_FILENAME = f"{safe_provider}_Term{TERM}_{CALENDARYEAR}_CompetencyReport_{today}.pdf"
-
+    
     df2 = df[['CompetencyDesc', 'YearGroupDesc']].drop_duplicates()
     row_heights = (
         df2['YearGroupDesc'].value_counts().sort_index() /
